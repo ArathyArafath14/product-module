@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
 use App\ProductData;
+use App\Mail\WelcomeMail;
+use Illuminate\Support\Facades\Mail;
 use Exception;
 
 class ProductController extends Controller
@@ -11,8 +13,14 @@ class ProductController extends Controller
     public function index()
     {
         $data['products'] = ProductData::latest()->with('user')->paginate(5);
+
+        return response([
+
+         'data' => new ProductResource($products)
+
+       ],Response::HTTP_CREATED);
     
-        return view('product.index', $data);
+       // return view('product.index', $data);
     }
 
     public function create()
@@ -29,8 +37,12 @@ class ProductController extends Controller
                 'message' => 'Product saved successfully!',
                 'alert-type' => 'success'
             );
+            $email = Auth::user()->email;
 
-            return redirect()->route('products.index')->with($notification);
+           Mail::to($data['email'])->send(new ProductMail($product));
+
+           return redirect()->route('products.index')->with($notification);
+           
 
         } catch (Exception $e) {
             $notification = array(
