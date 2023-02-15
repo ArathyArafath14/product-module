@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest;
 use App\ProductData;
 use App\Mail\ProductMail;
@@ -13,9 +14,9 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $data['products'] = ProductData::latest()->with('user')->paginate(5);
-    
-        return view('product.index', $data);
+        $products = ProductData::latest()->with('user')->paginate(5);
+        return response()->json($products);
+        //return view('product.index', $data);
     }
 
     public function create()
